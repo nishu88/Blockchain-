@@ -5,7 +5,7 @@
 'use strict';
 
 const { ChaincodeStub, ClientIdentity } = require('fabric-shim');
-const { MyAssetContract } = require('..');
+const { CustomervalidContract } = require('..');
 const winston = require('winston');
 
 const chai = require('chai');
@@ -30,79 +30,138 @@ class TestContext {
 
 }
 
-describe('MyAssetContract', () => {
+describe('CustomervalidContract', () => {
 
     let contract;
     let ctx;
 
     beforeEach(() => {
-        contract = new MyAssetContract();
+        contract = new CustomervalidContract();
         ctx = new TestContext();
-        ctx.stub.getState.withArgs('1001').resolves(Buffer.from('{"value":"my asset 1001 value"}'));
-        ctx.stub.getState.withArgs('1002').resolves(Buffer.from('{"value":"my asset 1002 value"}'));
+        ctx.stub.getState.withArgs('EMP0').resolves(Buffer.from('{"value":"customervalid 1001 value"}'));
+        ctx.stub.getState.withArgs('EMP1').resolves(Buffer.from('{"value":"customervalid 1002 value"}'));
     });
 
-    describe('#myAssetExists', () => {
 
-        it('should return true for a my asset', async () => {
-            await contract.myAssetExists(ctx, '1001').should.eventually.be.true;
+    describe('#querydata', () => {
+
+        it('should return true for a customervalid', async () => {
+            await contract.querydata(ctx, 'EMP0').should.eventually.be.true;
         });
 
-        it('should return false for a my asset that does not exist', async () => {
-            await contract.myAssetExists(ctx, '1003').should.eventually.be.false;
-        });
-
-    });
-
-    describe('#createMyAsset', () => {
-
-        it('should create a my asset', async () => {
-            await contract.createMyAsset(ctx, '1003', 'my asset 1003 value');
-            ctx.stub.putState.should.have.been.calledOnceWithExactly('1003', Buffer.from('{"value":"my asset 1003 value"}'));
-        });
-
-        it('should throw an error for a my asset that already exists', async () => {
-            await contract.createMyAsset(ctx, '1001', 'myvalue').should.be.rejectedWith(/The my asset 1001 already exists/);
+        it('should return false for a customervalid that does not exist', async () => {
+            await contract.querydata(ctx, 'EMP5').should.eventually.be.false;
         });
 
     });
 
-    describe('#readMyAsset', () => {
+    describe('#querydata', () => {
 
-        it('should return a my asset', async () => {
-            await contract.readMyAsset(ctx, '1001').should.eventually.deep.equal({ value: 'my asset 1001 value' });
+        it('should return a customervalid', async () => {
+            await contract.querydata(ctx, 'EMP0').should.eventually.deep.equal({ value: 'customervalid 1001 value' });
         });
 
-        it('should throw an error for a my asset that does not exist', async () => {
-            await contract.readMyAsset(ctx, '1003').should.be.rejectedWith(/The my asset 1003 does not exist/);
-        });
-
-    });
-
-    describe('#updateMyAsset', () => {
-
-        it('should update a my asset', async () => {
-            await contract.updateMyAsset(ctx, '1001', 'my asset 1001 new value');
-            ctx.stub.putState.should.have.been.calledOnceWithExactly('1001', Buffer.from('{"value":"my asset 1001 new value"}'));
-        });
-
-        it('should throw an error for a my asset that does not exist', async () => {
-            await contract.updateMyAsset(ctx, '1003', 'my asset 1003 new value').should.be.rejectedWith(/The my asset 1003 does not exist/);
+        it('should throw an error for a customervalid that does not exist', async () => {
+            await contract.querydata(ctx, 'EMP5').should.be.rejectedWith(/The customervalid 1003 does not exist/);
         });
 
     });
 
-    describe('#deleteMyAsset', () => {
+    describe('#valid', () => {
 
-        it('should delete a my asset', async () => {
-            await contract.deleteMyAsset(ctx, '1001');
+        it('should update a customervalid', async () => {
+            await contract.valid(ctx, 'EMP0', 'customervalid 1001 new value');
+            ctx.stub.putState.should.have.been.calledOnceWithExactly('1001', Buffer.from('{"value":"customervalid 1001 new value"}'));
+        });
+
+        it('should throw an error for a customervalid that does not exist', async () => {
+            await contract.valid(ctx, 'EMP5', 'customervalid 1003 new value').should.be.rejectedWith(/The customervalid 1003 does not exist/);
+        })
+
+    });
+
+
+
+
+
+
+});
+
+/*
+describe('CustomervalidContract', () => {
+
+    let contract;
+    let ctx;
+
+    beforeEach(() => {
+        contract = new CustomervalidContract();
+        ctx = new TestContext();
+        ctx.stub.getState.withArgs('1001').resolves(Buffer.from('{"value":"customervalid 1001 value"}'));
+        ctx.stub.getState.withArgs('1002').resolves(Buffer.from('{"value":"customervalid 1002 value"}'));
+    });
+
+    describe('#customervalidExists', () => {
+
+        it('should return true for a customervalid', async () => {
+            await contract.customervalidExists(ctx, '1001').should.eventually.be.true;
+        });
+
+        it('should return false for a customervalid that does not exist', async () => {
+            await contract.customervalidExists(ctx, '1003').should.eventually.be.false;
+        });
+
+    });
+
+    describe('#createCustomervalid', () => {
+
+        it('should create a customervalid', async () => {
+            await contract.createCustomervalid(ctx, '1003', 'customervalid 1003 value');
+            ctx.stub.putState.should.have.been.calledOnceWithExactly('1003', Buffer.from('{"value":"customervalid 1003 value"}'));
+        });
+
+        it('should throw an error for a customervalid that already exists', async () => {
+            await contract.createCustomervalid(ctx, '1001', 'myvalue').should.be.rejectedWith(/The customervalid 1001 already exists/);
+        });
+
+    });
+
+    describe('#readCustomervalid', () => {
+
+        it('should return a customervalid', async () => {
+            await contract.readCustomervalid(ctx, '1001').should.eventually.deep.equal({ value: 'customervalid 1001 value' });
+        });
+
+        it('should throw an error for a customervalid that does not exist', async () => {
+            await contract.readCustomervalid(ctx, '1003').should.be.rejectedWith(/The customervalid 1003 does not exist/);
+        });
+
+    });
+
+    describe('#updateCustomervalid', () => {
+
+        it('should update a customervalid', async () => {
+            await contract.updateCustomervalid(ctx, '1001', 'customervalid 1001 new value');
+            ctx.stub.putState.should.have.been.calledOnceWithExactly('1001', Buffer.from('{"value":"customervalid 1001 new value"}'));
+        });
+
+        it('should throw an error for a customervalid that does not exist', async () => {
+            await contract.updateCustomervalid(ctx, '1003', 'customervalid 1003 new value').should.be.rejectedWith(/The customervalid 1003 does not exist/);
+        });
+
+    });
+
+    describe('#deleteCustomervalid', () => {
+
+        it('should delete a customervalid', async () => {
+            await contract.deleteCustomervalid(ctx, '1001');
             ctx.stub.deleteState.should.have.been.calledOnceWithExactly('1001');
         });
 
-        it('should throw an error for a my asset that does not exist', async () => {
-            await contract.deleteMyAsset(ctx, '1003').should.be.rejectedWith(/The my asset 1003 does not exist/);
+        it('should throw an error for a customervalid that does not exist', async () => {
+            await contract.deleteCustomervalid(ctx, '1003').should.be.rejectedWith(/The customervalid 1003 does not exist/);
         });
 
     });
+   
 
-});
+}); */
