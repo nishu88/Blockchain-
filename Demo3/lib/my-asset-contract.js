@@ -14,6 +14,7 @@ class MyAssetContract extends Contract {
         return (!!buffer && buffer.length > 0);
     }
 
+    
     async initLedger(ctx) {
         console.info('============= START : Initialize Ledger ===========');
 
@@ -23,28 +24,36 @@ class MyAssetContract extends Contract {
                 school: 'dps',
                 college: 'rvce',
                 company: 'wdc',
-                validate: [0,0,0],
+                schoolValidate: "0",
+                collegeValidate: "0",
+                companyValidate: "0",
             },
             {
                 name: 'nishanth',
                 school: 'spes',
                 college: 'rvce',
                 company: 'cisco',
-                validate: [0,0,0],
+                schoolValidate: "0",
+                collegeValidate: "0",
+                companyValidate: "0",
             },
             {
                 name: 'vijay',
                 school: 'cmr',
                 college: 'rvce',
                 company: 'cisco',
-                validate: [0,0,0],
+                schoolValidate: "0",
+                collegeValidate: "0",
+                companyValidate: "0",
             },
             {
                 name: 'mahadev',
                 school: 'sssjvk',
                 college: 'rvce',
                 company: 'UHG',
-                validate: [0,0,0],
+                schoolValidate: "0",
+                collegeValidate: "0",
+                companyValidate: "0",
             }
         ];
 
@@ -54,7 +63,7 @@ class MyAssetContract extends Contract {
             console.info('Added <--> ', emp[i]);
         }
         console.info('============= END : Initialize Ledger ===========');
-    }
+    } 
 
     async queryData(ctx, customerId) {
         const customerasbytes = await ctx.stub.getState(customerId);
@@ -65,7 +74,7 @@ class MyAssetContract extends Contract {
         return customerasbytes.toString();
     }
 
-    async createEmp(ctx, empid, name, school, college, company, validate=[0,0,0]) {
+    async createEmp(ctx, empid, name, school, college, company, validate="000") {
         console.info('============= START : Create emp ===========');
 
         const emp = {
@@ -74,14 +83,16 @@ class MyAssetContract extends Contract {
             school,
             college,
             company,
-            validate,
+            schoolValidate,
+            collegeValidate,
+            companyValidate,
         };
 
         await ctx.stub.putState(empid, Buffer.from(JSON.stringify(emp)));
         console.info('============= END : Create emp ===========');
     }
 
-    async valid(ctx, empid, index) {
+    async validation1(ctx, empid, index) {
         console.log('============= START : validate ===========');
 
         const customerasbytes = await ctx.stub.getState(empid);
@@ -89,65 +100,56 @@ class MyAssetContract extends Contract {
             throw new Error(`${empid} does not exist`);
         }
 
-        const emp = JSON.parse(customerasbytes.toString);
-
+        const emp = JSON.parse(customerasbytes.toString());
+        console.log(emp);
+        
         if (index == "1") {
-            emp.validate[0] = 1;
+            emp.schoolValidate = "1";
         } else if (index == "2") {
-            emp.validate[1] = 1;
+            emp.collegeValidate = "1";
         } else if (index == "3") {
-            emp.validate[2] = 1;
+            emp.companyValidate = "1";
+        }
+
+        if (emp.schoolValidate == "1" && emp.collegeValidate == "1" && emp.companyValidate == "1") {
+            console.log("ALL DOCUMENTS ARE VALIDATED!!!");
         }
 
         await ctx.stub.putState(empid, Buffer.from(JSON.stringify(emp)));
     }
 
-    /* 
-    async myAssetExists(ctx, myAssetId) {
-        const buffer = await ctx.stub.getState(myAssetId);
-        return (!!buffer && buffer.length > 0);
-    }
+    async querryallemp(ctx) {
+        const startKey = 'EMP0';
+        const endKey = 'EMP999';
 
-    async createMyAsset(ctx, myAssetId, value) {
-        const exists = await this.myAssetExists(ctx, myAssetId);
-        if (exists) {
-            throw new Error(`The my asset ${myAssetId} already exists`);
+        const iterator = await ctx.stub.getStateByRange(startKey, endKey);
+
+        const allResults = [];
+        while (true) {
+            const res = await iterator.next();
+
+            if (res.value && res.value.value.toString()) {
+                console.log(res.value.value.toString('utf8'));
+
+                const Key = res.value.key;
+                let Record;
+                try {
+                    Record = JSON.parse(res.value.value.toString('utf8'));
+                } catch (err) {
+                    console.log(err);
+                    Record = res.value.value.toString('utf8');
+                }
+                allResults.push({ Key, Record });
+            }
+            if (res.done) {
+                console.log('end of data');
+                await iterator.close();
+                console.info(allResults);
+                return JSON.stringify(allResults);
+            }
         }
-        const asset = { value };
-        const buffer = Buffer.from(JSON.stringify(asset));
-        await ctx.stub.putState(myAssetId, buffer);
     }
 
-    async readMyAsset(ctx, myAssetId) {
-        const exists = await this.myAssetExists(ctx, myAssetId);
-        if (!exists) {
-            throw new Error(`The my asset ${myAssetId} does not exist`);
-        }
-        const buffer = await ctx.stub.getState(myAssetId);
-        const asset = JSON.parse(buffer.toString());
-        return asset;
-    }
-
-    async updateMyAsset(ctx, myAssetId, newValue) {
-        const exists = await this.myAssetExists(ctx, myAssetId);
-        if (!exists) {
-            throw new Error(`The my asset ${myAssetId} does not exist`);
-        }
-        const asset = { value: newValue };
-        const buffer = Buffer.from(JSON.stringify(asset));
-        await ctx.stub.putState(myAssetId, buffer);
-    }
-
-    async deleteMyAsset(ctx, myAssetId) {
-        const exists = await this.myAssetExists(ctx, myAssetId);
-        if (!exists) {
-            throw new Error(`The my asset ${myAssetId} does not exist`);
-        }
-        await ctx.stub.deleteState(myAssetId);
-    }
-
-
-    */
 }
 
 module.exports = MyAssetContract;
