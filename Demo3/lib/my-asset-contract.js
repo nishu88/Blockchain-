@@ -9,8 +9,8 @@ const { Contract } = require('fabric-contract-api');
 class MyAssetContract extends Contract {
 
 
-    async empvalidExists(ctx, customervalidId) {
-        const buffer = await ctx.stub.getState(customervalidId);
+    async empValidExists(ctx, empValidId) {
+        const buffer = await ctx.stub.getState(empValidId);
         return (!!buffer && buffer.length > 0);
     }
 
@@ -23,6 +23,7 @@ class MyAssetContract extends Contract {
                 name: 'rajat',
                 school: 'dps',
                 college: 'rvce',
+                usn: '1RV16EC001',
                 company: 'wdc',
                 schoolValidate: "0",
                 collegeValidate: "0",
@@ -32,6 +33,7 @@ class MyAssetContract extends Contract {
                 name: 'nishanth',
                 school: 'spes',
                 college: 'rvce',
+                usn: '1RV16EC002',
                 company: 'cisco',
                 schoolValidate: "0",
                 collegeValidate: "0",
@@ -41,6 +43,7 @@ class MyAssetContract extends Contract {
                 name: 'vijay',
                 school: 'cmr',
                 college: 'rvce',
+                usn: '1RV16EC003',
                 company: 'cisco',
                 schoolValidate: "0",
                 collegeValidate: "0",
@@ -50,6 +53,7 @@ class MyAssetContract extends Contract {
                 name: 'mahadev',
                 school: 'sssjvk',
                 college: 'rvce',
+                usn: '1RV16EC004',
                 company: 'UHG',
                 schoolValidate: "0",
                 collegeValidate: "0",
@@ -65,16 +69,16 @@ class MyAssetContract extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     } 
 
-    async queryData(ctx, customerId) {
-        const customerasbytes = await ctx.stub.getState(customerId);
-        if (!customerasbytes || customerasbytes.length === 0) {
-            throw new Error(`${customerId} does not exist`);
+    async queryData(ctx, empId) {
+        const empAsBytes = await ctx.stub.getState(empId);
+        if (!empAsBytes || empAsBytes.length === 0) {
+            throw new Error(`${empId} does not exist`);
         }
-        console.log(customerasbytes.toString());
-        return customerasbytes.toString();
+        console.log(empAsBytes.toString());
+        return empAsBytes.toString();
     }
 
-    async createEmp(ctx, empid, name, school, college, company, validate="000") {
+    async createEmp(ctx, empId, name, school, college, usn, company, validate="000") {
         console.info('============= START : Create emp ===========');
 
         const emp = {
@@ -82,25 +86,26 @@ class MyAssetContract extends Contract {
             docType: 'emp',
             school,
             college,
+            usn,
             company,
             schoolValidate,
             collegeValidate,
             companyValidate,
         };
 
-        await ctx.stub.putState(empid, Buffer.from(JSON.stringify(emp)));
+        await ctx.stub.putState(empId, Buffer.from(JSON.stringify(emp)));
         console.info('============= END : Create emp ===========');
     }
 
-    async validation1(ctx, empid, index) {
+    async validation(ctx, empId, index) {
         console.log('============= START : validate ===========');
 
-        const customerasbytes = await ctx.stub.getState(empid);
-        if(!customerasbytes || customerasbytes === 0) {
-            throw new Error(`${empid} does not exist`);
+        const empAsBytes = await ctx.stub.getState(empId);
+        if(!empAsBytes || empAsBytes === 0) {
+            throw new Error(`${empId} does not exist`);
         }
 
-        const emp = JSON.parse(customerasbytes.toString());
+        const emp = JSON.parse(empAsBytes.toString());
         console.log(emp);
         
         if (index == "1") {
