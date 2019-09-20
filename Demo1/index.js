@@ -4,7 +4,8 @@
 
 'use strict';
 
-const MyAssetContract = require('./lib/my-asset-contract');
+const CustomervalidContract = require('./lib/customervalid-contract');
 
-module.exports.MyAssetContract = MyAssetContract;
-module.exports.contracts = [ MyAssetContract ];
+module.exports.CustomervalidContract = CustomervalidContract;
+module.exports.contracts = [ CustomervalidContract ];
+
